@@ -924,3 +924,25 @@ test("plugin-only session collaboration operations stay off the external MCP sur
   });
   assert.deepEqual(calls.at(-1), { channel: "pi-desktop/app/getVersion", args: [] });
 });
+test("remote approval and asktool operations are exposed with write/read risk for plugins", () => {
+  const channels = {
+    plansResolve: "pi-desktop/plans/resolve",
+    askToolResolve: "pi-desktop/agent/askTool/resolve",
+    pendingInteractive: "pi-desktop/agent/pendingInteractive",
+    plansPending: "pi-desktop/plans/pending",
+  };
+  const operations = createMcpControlOperations(channels);
+  const byId = new Map(operations.map((op) => [op.id, op]));
+
+  assert.equal(byId.get("plans/resolve")?.risk, "write");
+  assert.equal(byId.get("plans/resolve")?.channel, "pi-desktop/plans/resolve");
+
+  assert.equal(byId.get("agent/askTool/resolve")?.risk, "write");
+  assert.equal(byId.get("agent/askTool/resolve")?.channel, "pi-desktop/agent/askTool/resolve");
+
+  assert.equal(byId.get("agent/pendingInteractive")?.risk, "read");
+  assert.equal(byId.get("agent/pendingInteractive")?.channel, "pi-desktop/agent/pendingInteractive");
+
+  assert.equal(byId.get("plans/pending")?.risk, "read");
+});
+
